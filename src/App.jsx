@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import {useState} from 'react'
+import {useState, useRef, useEffect} from 'react'
 import json from './assets/extractedMainQuests.json'
 import {AutoSizer, List, CellMeasurer, CellMeasurerCache} from 'react-virtualized'
 
@@ -16,17 +16,18 @@ function MainQuest({mainquest}){
   )
 }
 
-function ColorText({text, speaker, color}){ //this is overtop of highlights as i can't code this seprately sorry
-  let textString
-  if (color.length > 0){
-    for (const attr of color){
-      textString = text.replaceAll(attr.text, '<span class="text-[' + attr.color + ']">' + attr.text + '</span>')
-    }
-  }
-  else textString = text
-  const comWord = '<span class="font-bold">' + speaker + '</span>' + ': ' + textString
-  return <p className = "absolute top-0 left-0 ml-5" dangerouslySetInnerHTML={{__html: comWord}}/>
-}
+// until i find a way to make color text work with highlights i will comment this out
+// function ColorText({text, speaker, color}){ //this is overtop of highlights as i can't code this seprately sorry
+//   let textString
+//   if (color.length > 0){
+//     for (const attr of color){
+//       textString = text.replaceAll(attr.text, "<span style = 'color:" + attr.color + "'>" + attr.text + '</span>')
+//     }
+//   }
+//   else textString = text
+//   const comWord = '<span class="font-bold">' + speaker + '</span>' + ': ' + textString
+//   return <p className = "absolute top-0 left-0 ml-5" dangerouslySetInnerHTML={{__html: comWord}}/>
+// }
 
 function HighlightText({text, speaker, highlightTxt}){
   const textString = text.replaceAll(highlightTxt, '<span class="bg-yellow-300">' + highlightTxt + '</span>')
@@ -40,11 +41,19 @@ export default function App() {
   const [searchedWordList, setSearchedWordList] = useState([])
   const [filteredWord, setWord] = useState('')
   const [curDim, setCurrentDim] = useState({height: window.innerHeight, width: window.innerWidth})
+  const listRef = useRef(null)
 
   const cache = new CellMeasurerCache({
     defaultHeight: 30,
     fixedWidth: true
   });
+
+  useEffect(() => {
+    // When filtered word changes, scroll to the top
+    if (listRef.current) {
+      listRef.current.scrollToPosition(0);
+    }
+  }, [filteredWord]);
 
   function searchSelectedWord(word){
 
@@ -126,11 +135,18 @@ export default function App() {
         <h1 className='text-3xl font-bold'>Genshin Dialog Viewer</h1>
         <label htmlFor = 'searchBox'>Search: </label>
         <input 
-          id = 'searchBox' placeholder='Type to search' value = {filteredWord}
+          id = 'searchBox' placeholder='Type to search text' value = {filteredWord}
           className = 'bg-gray-100 border border-black rounded pl-1 inline-flex' 
           onChange={e => handleInputChange(e)}
           type = 'search'>
         </input>
+        {searchedWordList.length > 0? 
+          searchedWordList[0] === null ?
+          <span className="ml-5">Number of Lines Found: 0</span>
+          :
+          <span className="ml-5">Number of Lines Found: {searchedWordList.length}</span>
+          :
+        null}
       </div>
       {searchedWordList.length > 0?
         <div className="h-full">
@@ -139,6 +155,7 @@ export default function App() {
           >
             {() => (
               <List
+                ref={listRef}
                 height={curDim.height}
                 width={curDim.width}
                 deferredMeasurementCache={cache}
@@ -161,9 +178,9 @@ export default function App() {
                               <HighlightText speaker = {(searchedWordList[index]).speaker} 
                                 text = {(searchedWordList[index]).text} 
                                 highlightTxt = {filteredWord}/>
-                              <ColorText speaker = {(searchedWordList[index]).speaker} 
+                              {/* <ColorText speaker = {(searchedWordList[index]).speaker} 
                                 text = {(searchedWordList[index]).text} 
-                                color = {(searchedWordList[index]).color}/>
+                                color = {(searchedWordList[index]).color}/> */}
                             </div>
                           </div>
                         </div>

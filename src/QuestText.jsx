@@ -1,4 +1,4 @@
-//import { useState } from 'react'
+import { useEffect } from 'react'
 import { useParams } from "react-router-dom";
 import json from './assets/extractedMainQuests.json'
 
@@ -6,6 +6,10 @@ export default function QuestText() {
   const {id} = useParams();
   const quest = json.find((q) => q.questId === parseInt(id)) //find i
   const regex = /<color=#([0-9A-Fa-f]{8})>(.*?)<\/color>/g;
+
+  useEffect(() => { //scroll to top
+    window.scrollTo(0, 0)
+  }, [])
 
   function removeColorTags(text) {
     
@@ -51,8 +55,8 @@ export default function QuestText() {
           const color = extractColorTags(dialog.dialogText)
           let textString = removeColorTags(dialog.dialogText)
           if (color.length > 0){
-            for (const attr of color){ //#00E1FFFF
-              textString = textString.replaceAll(attr.text, '<span class="text-[' + attr.color + ']">' + attr.text + '</span>')
+            for (const attr of color){
+              textString = textString.replaceAll(attr.text, "<span style = 'color:" + attr.color + "'>" + attr.text + '</span>')
             }
           }
           sOut.push(`<span class="font-bold">${dialog.speakerName}:</span> ${textString}`);
@@ -64,7 +68,7 @@ export default function QuestText() {
             let textString = removeColorTags(multi.dialogText)
             if (color.length > 0){
               for (const attr of color){
-                textString = textString.replaceAll(attr.text, '<span class="text-[' + attr.color + ']">' + attr.text + '</span>')
+                textString = textString.replaceAll(attr.text, "<span style = 'color:" + attr.color + "'>" + attr.text + '</span>')
               }
             }
             sOut.push(`<span class="font-bold">${multi.speakerName}:</span> ${textString}`);

@@ -98,7 +98,7 @@ export default function App() {
   const listRef = useRef(null)
 
   const [textMap, setTextMap] = useState(null)
-  const [LANGtextMap, setLANGTextMap] = useState("CHS")
+  const [LANGtextMap, setLANGTextMap] = useState(null)
 
   const cache = new CellMeasurerCache({
     defaultHeight: 30,
@@ -120,6 +120,7 @@ export default function App() {
 
   useEffect(() => {
     // Whenever selectedLANG changes, load its TextMap
+    setLANGTextMap(null)
     loadTextMap(selectedLANG)
       .then(setLANGTextMap)
       .catch(console.error);
@@ -220,6 +221,7 @@ export default function App() {
       <div>
         <div className="flex">
           <h1 className='ml-4 text-3xl font-bold'>Genshin Dialog Viewer</h1>
+          <span className="my-auto ml-10">Alt Language: {selectedLANG}</span>
           <button className="ml-auto mr-5 bg-gray-100 border border-black rounded px-1"
             onClick={() => {
               setlanguagesearch(!languagesearch)

@@ -2,29 +2,8 @@
 import { Link } from "react-router-dom";
 import { useState, useRef, useEffect } from 'react'
 import EnQuestjson from './assets/extractedMainQuests.json'
-import EN from './assets/TextMap/TextMapEN.json'
-import CHS from './assets/TextMap/TextMapCHS.json'
-import CHT from './assets/TextMap/TextMapCHT.json'
-import DE from './assets/TextMap/TextMapDE.json'
-import ES from './assets/TextMap/TextMapES.json'
-import FR from './assets/TextMap/TextMapFR.json'
-import ID from './assets/TextMap/TextMapID.json'
-import IT from './assets/TextMap/TextMapIT.json'
-import JP from './assets/TextMap/TextMapJP.json'
-import KR from './assets/TextMap/TextMapKR.json'
-import PT from './assets/TextMap/TextMapPT.json'
-import RU from './assets/TextMap/TextMapRU.json'
-import TH_0 from './assets/TextMap/TextMapTH_0.json'
-import TH_1 from './assets/TextMap/TextMapTH_1.json'
-import TR from './assets/TextMap/TextMapTR.json'
-import VI from './assets/TextMap/TextMapVI.json'
-
+import { loadTextMap } from "./utils/loadTextMap"
 import { AutoSizer, List, CellMeasurer, CellMeasurerCache } from 'react-virtualized'
-
-const EnSorted = Object.entries(EN).map(([key, text]) => ({
-  id: key,
-  text
-}));
 
 const regex = /<color=#([0-9A-Fa-f]{8})>(.*?)<\/color>/g;
 
@@ -32,25 +11,7 @@ const LANGUAGES = [
   "CHS", "CHT", "DE", "EN", "ES", "FR", "ID", "IT", "JP", "KR",
   "PT", "RU", "TH_0", "TH_1", "TR", "VI"
 ];
-
-const LANGUAGE_MAP = {
-  EN,
-  CHS,
-  CHT,
-  DE,
-  ES,
-  FR,
-  ID,
-  IT,
-  JP,
-  KR,
-  PT,
-  RU,
-  TH_0,
-  TH_1,
-  TR,
-  VI
-};
+/////////
 
 function removeColorTags(text) {
 
@@ -117,8 +78,8 @@ function HighlightTextLanguage({ id, text, translatedtext, highlightTxt }) {
 
   return (
     <>
-      <p className="ml-5 font-bold">{id}</p>
-      <p className="ml-5">{translatedtext}</p>
+      <p className="ml-5 mb-5 font-bold">{id}</p>
+      <p className="ml-5 mb-5">{translatedtext}</p>
       <p className="ml-5">
         {renderHighlightedText(text, highlightTxt)}
       </p>
@@ -136,10 +97,33 @@ export default function App() {
   const [curDim, setCurrentDim] = useState({ height: window.innerHeight, width: window.innerWidth })
   const listRef = useRef(null)
 
+  const [textMap, setTextMap] = useState(null)
+  const [LANGtextMap, setLANGTextMap] = useState("CHS")
+
   const cache = new CellMeasurerCache({
     defaultHeight: 30,
     fixedWidth: true
   });
+
+  useEffect(() => {
+    loadTextMap("EN")
+      .then((res) => {
+          const EnSorted = Object.entries(res).map(([key, text]) => ({
+            id: key,
+            text
+          }));
+          setTextMap(EnSorted)
+        }
+      )
+        .catch(console.error)
+  }, [])
+
+  useEffect(() => {
+    // Whenever selectedLANG changes, load its TextMap
+    loadTextMap(selectedLANG)
+      .then(setLANGTextMap)
+      .catch(console.error);
+  }, [selectedLANG]);
 
   useEffect(() => {
     // When filtered word changes, scroll to the top
@@ -173,12 +157,12 @@ export default function App() {
     const matchingWords = []
 
     if (languagesearchtrue) {
-      for (const item of EnSorted) {
+      for (const item of textMap) {
         if (checkWordExistLanguage(word, item.text)) {
           
           matchingWords.push({
             id: item.id,
-            transtext: (LANGUAGE_MAP[selectedLANG])[item.id] || "Language ID not found",
+            transtext: (LANGtextMap)[item.id] || "Language ID not found",
             text: removeColorTags(item.text)
           });
         }
@@ -228,6 +212,8 @@ export default function App() {
       searchSelectedWord(event.target.value, false)
     }
   }
+  
+  if (!textMap || !LANGtextMap) return <div>Loading EN and {selectedLANG}…</div>
 
   return (
     <div className='font-serif flex flex-col h-screen'>

@@ -46,16 +46,30 @@ export default function LanguageSearchResults({
                             <div className="relative">
                               {item.type === "book" ? (
                                 <>
-                                  <a
-                                    href={`/DialogText/assets/Readable/${selectedLANG}/${item.langFilename}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                  >
-                                    <p className="ml-5 mb-2 font-bold">{item.title}</p>
-                                  </a>
-                                  <p className="ml-5 mb-2 text-sm">{item.langFilename}</p>
+                                  {(() => {
+                                    const href = `/DialogText/readable/${selectedLANG}/${encodeURIComponent(item.langFilename)}`
+                                    return (
+                                      <a
+                                        href={href}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        onClick={(e) => {
+                                          e.preventDefault()
+                                          window.open(href, "_blank", "noopener,noreferrer")
+                                        }}
+                                      >
+                                        <p className="ml-5 mb-2 font-bold">{item.title}</p>
+                                      </a>
+                                    )
+                                  })()}
+                                  <p className="ml-5 mb-1 text-sm font-bold">EN:</p>
                                   <HighlightSnippet
-                                    text={item.snippet}
+                                    text={item.enSnippet}
+                                    highlightTxt={filteredWord}
+                                  />
+                                  <p className="ml-5 mt-3 mb-1 text-sm font-bold">{selectedLANG}:</p>
+                                  <HighlightSnippet
+                                    text={item.translatedSnippet}
                                     highlightTxt={filteredWord}
                                   />
                                 </>

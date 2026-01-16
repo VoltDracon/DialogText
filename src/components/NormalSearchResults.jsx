@@ -49,13 +49,22 @@ export default function NormalSearchResults({
                           <div className="border-2 border-black m-1 p-4 rounded-xl bg-gray-300">
                             {item.type === "book" ? (
                               <>
-                                <a
-                                  href={`/DialogText/assets/Readable/EN/${item.filename}`}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  <p className='font-bold'>{item.title}</p>
-                                </a>
+                                {(() => {
+                                  const href = `/DialogText/readable/EN/${encodeURIComponent(item.filename)}`
+                                  return (
+                                    <a
+                                      href={href}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      onClick={(e) => {
+                                        e.preventDefault()
+                                        window.open(href, "_blank", "noopener,noreferrer")
+                                      }}
+                                    >
+                                      <p className='font-bold'>{item.title}</p>
+                                    </a>
+                                  )
+                                })()}
                                 <HighlightSnippet
                                   text={item.snippet}
                                   highlightTxt={filteredWord}

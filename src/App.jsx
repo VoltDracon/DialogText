@@ -49,6 +49,7 @@ export default function App() {
   const [selectedLANG, setselectedLANG] = useState("CHS")
   const [curDim, setCurrentDim] = useState({ height: window.innerHeight, width: window.innerWidth })
   const listRef = useRef(null)
+  const searchCounter = useRef(0)
 
   const [textMap, setTextMap] = useState(null)
   const [LANGtextMap, setLANGTextMap] = useState(null)
@@ -120,7 +121,16 @@ export default function App() {
     return `${prefix}${normalized.slice(start, end)}${suffix}`
   }
 
-  function searchSelectedWord(word, languagesearchtrue) {
+  async function fetchReadableText(lang, filename) {
+    const response = await fetch(`/DialogText/assets/Readable/${lang}/${filename}`)
+    if (!response.ok) {
+      throw new Error(`Failed to load readable ${lang}/${filename}`)
+    }
+    return await response.text()
+  }
+
+  async function searchSelectedWord(word, languagesearchtrue) {
+    const currentSearch = ++searchCounter.current
 
     if (word === '') return setSearchedWordList([]) //don't search empty strings, pls
 
@@ -157,17 +167,34 @@ export default function App() {
         }
       }
 
-      for (const readable of readablesIndex) {
-        if (checkWordExistLanguage(word, readable.text)) {
-          matchingWords.push({
-            type: "book",
-            title: readable.title,
-            filename: readable.filename,
-            langFilename: getReadableLangFilename(readable.filename, selectedLANG),
-            snippet: getReadableSnippet(readable.text, word)
-          })
-        }
-      }
+      const readablePromises = readablesIndex
+        .filter((readable) => checkWordExistLanguage(word, readable.text))
+        .map(async (readable) => {
+          const langFilename = getReadableLangFilename(readable.filename, selectedLANG)
+          try {
+            const translatedText = await fetchReadableText(selectedLANG, langFilename)
+            return {
+              type: "book",
+              title: readable.title,
+              filename: readable.filename,
+              langFilename,
+              enSnippet: getReadableSnippet(readable.text, word),
+              translatedSnippet: getReadableSnippet(translatedText, word)
+            }
+          } catch (error) {
+            return {
+              type: "book",
+              title: readable.title,
+              filename: readable.filename,
+              langFilename,
+              enSnippet: getReadableSnippet(readable.text, word),
+              translatedSnippet: "Language text not found."
+            }
+          }
+        })
+
+      const readableMatches = await Promise.all(readablePromises)
+      matchingWords.push(...readableMatches)
     }
     else {
       for (const quest of EnQuestjson) {
@@ -210,29 +237,33 @@ export default function App() {
         }
       }
     }
+    if (currentSearch !== searchCounter.current) return
     if (matchingWords.length === 0) return setSearchedWordList([null])
 
     setSearchedWordList(matchingWords)
   }
 
-  function handleInputChange(event) {
-    setWord(event.target.value)
+  async function handleInputChange(event) {
+    const nextValue = event.target.value
+    setWord(nextValue)
     if (languagesearch) {
-      searchSelectedWord(event.target.value, true)
+      await searchSelectedWord(nextValue, true)
     }
     else {
-      searchSelectedWord(event.target.value, false)
+      await searchSelectedWord(nextValue, false)
     }
   }
 
   function handleToggleMode() {
     setlanguagesearch(!languagesearch)
+    searchCounter.current += 1
     setWord("")
     setSearchedWordList([])
   }
 
   function handleToggleNormalMode() {
     setNormalMode((prev) => (prev === "book" ? "quest" : "book"))
+    searchCounter.current += 1
     setWord("")
     setSearchedWordList([])
   }

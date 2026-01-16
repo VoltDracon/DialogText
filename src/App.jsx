@@ -166,6 +166,12 @@ export default function App() {
     }
   }
 
+  function handleToggleMode() {
+    setlanguagesearch(!languagesearch)
+    setWord("")
+    setSearchedWordList([])
+  }
+
   if (!textMap || !LANGtextMap) return <div>Loading EN and {selectedLANG}…</div>
 
   return (
@@ -175,7 +181,7 @@ export default function App() {
         selectedLANG={selectedLANG}
         filteredWord={filteredWord}
         searchedWordList={searchedWordList}
-        onToggleMode={() => setlanguagesearch(!languagesearch)}
+        onToggleMode={handleToggleMode}
         onInputChange={handleInputChange}
       />
       {languagesearch ?

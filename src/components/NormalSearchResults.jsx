@@ -63,8 +63,8 @@ export default function NormalSearchResults({
         //this is the quest blocks you can click
         <div className='flex flex-wrap'>
           {
-            quests.map((mainquest) => (
-              <MainQuest key={mainquest.questId} mainquest={mainquest} />
+            quests.map((mainquest, index) => (
+              <MainQuest key={`${mainquest.questId}-${index}`} mainquest={mainquest} />
             ))
           }
         </div>

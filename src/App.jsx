@@ -9,7 +9,7 @@ const regex = /<color=#([0-9A-Fa-f]{8})>(.*?)<\/color>/g;
 
 const LANGUAGES = [
   "CHS", "CHT", "DE", "EN", "ES", "FR", "ID", "IT", "JP", "KR",
-  "PT", "RU", "TH_0", "TH_1", "TR", "VI"
+  "PT", "RU_0", "RU_1", "TH_0", "TH_1", "TR", "VI"
 ];
 /////////
 
@@ -108,14 +108,14 @@ export default function App() {
   useEffect(() => {
     loadTextMap("EN")
       .then((res) => {
-          const EnSorted = Object.entries(res).map(([key, text]) => ({
-            id: key,
-            text
-          }));
-          setTextMap(EnSorted)
-        }
+        const EnSorted = Object.entries(res).map(([key, text]) => ({
+          id: key,
+          text
+        }));
+        setTextMap(EnSorted)
+      }
       )
-        .catch(console.error)
+      .catch(console.error)
   }, [])
 
   useEffect(() => {
@@ -160,7 +160,7 @@ export default function App() {
     if (languagesearchtrue) {
       for (const item of textMap) {
         if (checkWordExistLanguage(word, item.text)) {
-          
+
           matchingWords.push({
             id: item.id,
             transtext: (LANGtextMap)[item.id] || "Language ID not found",
@@ -213,7 +213,7 @@ export default function App() {
       searchSelectedWord(event.target.value, false)
     }
   }
-  
+
   if (!textMap || !LANGtextMap) return <div>Loading EN and {selectedLANG}…</div>
 
   return (
@@ -291,23 +291,25 @@ export default function App() {
             </div>
             :
             <div className="ml-5">
-              <p>
-                Type the dialogue in the search bar to find all instances of the word in the textmap!
-                You will also see the text in the language you selected. This does not include text found in books or weapon descriptions.
-              </p>
-              <div className="grid grid-cols-4 gap-2">
-                {LANGUAGES.map((lang) => (
-                  <label key={lang} className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      value={lang}
-                      checked={selectedLANG === lang}
-                      onChange={() => setselectedLANG(lang)}
-                      className="accent-blue-600"
-                    />
-                    <span>{lang}</span>
-                  </label>
-                ))}
+              <div>
+                <p>
+                  Type the dialogue in the search bar to find all instances of the word in the textmap!
+                  You will also see the text in the language you selected. This does not include text found in books or weapon descriptions.
+                </p>
+                <div className="grid grid-cols-4 gap-2">
+                  {LANGUAGES.map((lang) => (
+                    <label key={lang} className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value={lang}
+                        checked={selectedLANG === lang}
+                        onChange={() => setselectedLANG(lang)}
+                        className="accent-blue-600"
+                      />
+                      <span>{lang}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
           }

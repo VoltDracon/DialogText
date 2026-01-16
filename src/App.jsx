@@ -10,7 +10,7 @@ const regex = /<color=#([0-9A-Fa-f]{8})>(.*?)<\/color>/g;
 
 const LANGUAGES = [
   "CHS", "CHT", "DE", "EN", "ES", "FR", "ID", "IT", "JP", "KR",
-  "PT", "RU_0", "RU_1", "TH_0", "TH_1", "TR", "VI"
+  "PT", "RU", "TH", "TR", "VI"
 ];
 /////////
 

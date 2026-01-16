@@ -72,7 +72,19 @@ export default function NormalSearchResults({
                               </>
                             ) : (
                               <>
-                                <Link to={`/quest/${item.questId}`}>
+                                <Link
+                                  to={`/quest/${item.questId}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    window.open(
+                                      `/DialogText/quest/${item.questId}`,
+                                      "_blank",
+                                      "noopener,noreferrer"
+                                    )
+                                  }}
+                                >
                                   <p className='font-bold'>{item.quest}</p>
                                 </Link>
                                 <div className="relative">

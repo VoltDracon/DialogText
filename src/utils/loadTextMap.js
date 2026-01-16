@@ -1,5 +1,7 @@
+const baseUrl = import.meta.env.BASE_URL;
+
 async function loadSingleTextMap(lang) {
-  const response = await fetch(`/DialogText/assets/TextMap/TextMap${lang}.json`)
+  const response = await fetch(`${baseUrl}assets/TextMap/TextMap${lang}.json`)
   if (!response.ok) {
     throw new Error(`Failed to load TextMap for ${lang}`)
   }

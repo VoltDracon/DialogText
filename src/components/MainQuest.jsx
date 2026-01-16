@@ -1,6 +1,8 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 
+const baseUrl = import.meta.env.BASE_URL;
+
 export default function MainQuest({ mainquest }) {
   return (
     <div className='bg-gray-300 border-4 border-black rounded-3xl min-h-[350px] w-[calc(25%-10px)] m-[5px]'>
@@ -12,7 +14,7 @@ export default function MainQuest({ mainquest }) {
         onClick={(e) => {
           e.preventDefault()
           window.open(
-            `/DialogText/quest/${mainquest.questId}`,
+            `${baseUrl}#/quest/${mainquest.questId}`,
             "_blank",
             "noopener,noreferrer"
           )

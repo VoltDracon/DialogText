@@ -2,11 +2,11 @@ import SearchHeader from "./components/SearchHeader";
 import LanguageSearchResults from "./components/LanguageSearchResults";
 import NormalSearchResults from "./components/NormalSearchResults";
 import { useState, useRef, useEffect } from 'react'
-import EnQuestjson from './assets/extractedMainQuests.json'
 import { loadTextMap } from "./utils/loadTextMap"
 import { CellMeasurerCache } from 'react-virtualized'
 
 const regex = /<color=#([0-9A-Fa-f]{8})>(.*?)<\/color>/g;
+const baseUrl = import.meta.env.BASE_URL;
 
 const LANGUAGES = [
   "CHS", "CHT", "DE", "EN", "ES", "FR", "ID", "IT", "JP", "KR",
@@ -45,6 +45,7 @@ export default function App() {
   const [searchedWordList, setSearchedWordList] = useState([])
   const [filteredWord, setWord] = useState('')
   const [languagesearch, setlanguagesearch] = useState(false)
+  const [questData, setQuestData] = useState([])
   const [normalMode, setNormalMode] = useState("quest")
   const [selectedLANG, setselectedLANG] = useState("CHS")
   const [curDim, setCurrentDim] = useState({ height: window.innerHeight, width: window.innerWidth })
@@ -74,7 +75,19 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    fetch(`/DialogText/assets/Readable/EN/readables_index.json`)
+    fetch(`${baseUrl}assets/extractedMainQuests.json`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to load quest data")
+        }
+        return res.json()
+      })
+      .then(setQuestData)
+      .catch(console.error)
+  }, [])
+
+  useEffect(() => {
+    fetch(`${baseUrl}assets/Readable/EN/readables_index.json`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to load readables index")
@@ -122,7 +135,7 @@ export default function App() {
   }
 
   async function fetchReadableText(lang, filename) {
-    const response = await fetch(`/DialogText/assets/Readable/${lang}/${filename}`)
+    const response = await fetch(`${baseUrl}assets/Readable/${lang}/${filename}`)
     if (!response.ok) {
       throw new Error(`Failed to load readable ${lang}/${filename}`)
     }
@@ -197,7 +210,7 @@ export default function App() {
       matchingWords.push(...readableMatches)
     }
     else {
-      for (const quest of EnQuestjson) {
+      for (const quest of questData) {
         for (const subquest of quest.subQuestList) {
           for (const dialog of subquest.dialogList) {
             if (dialog.dialogType === "Single") {
@@ -303,7 +316,7 @@ export default function App() {
           cache={cache}
           curDim={curDim}
           onResize={({ width, height }) => setCurrentDim({ width: width, height: height })}
-          quests={EnQuestjson}
+          quests={questData}
           normalMode={normalMode}
           readables={readablesIndex}
         />

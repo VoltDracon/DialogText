@@ -1,14 +1,31 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from "react-router-dom";
-import json from './assets/extractedMainQuests.json'
+
+const baseUrl = import.meta.env.BASE_URL;
 
 export default function QuestText() {
   const {id} = useParams();
-  const quest = json.find((q) => q.questId === parseInt(id)) //find i
+  const [questData, setQuestData] = useState([])
+  const [error, setError] = useState("")
+  const quest = questData.find((q) => q.questId === parseInt(id)) //find i
   const regex = /<color=#([0-9A-Fa-f]{8})>(.*?)<\/color>/g;
 
   useEffect(() => { //scroll to top
     window.scrollTo(0, 0)
+  }, [])
+
+  useEffect(() => {
+    fetch(`${baseUrl}assets/extractedMainQuests.json`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to load quest data")
+        }
+        return res.json()
+      })
+      .then(setQuestData)
+      .catch((err) => {
+        setError(err.message || "Failed to load quest data")
+      })
   }, [])
 
   function removeColorTags(text) {
@@ -79,6 +96,18 @@ export default function QuestText() {
     }
     return sOut
   };
+
+  if (error) {
+    return <div className="p-4">Error: {error}</div>
+  }
+
+  if (!questData.length) {
+    return <div className="p-4">Loading quest...</div>
+  }
+
+  if (!quest) {
+    return <div className="p-4">Quest not found.</div>
+  }
 
   return (
     <div className='font-serif'>

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 
+const baseUrl = import.meta.env.BASE_URL;
+
 export default function ReadableViewer() {
   const { lang, filename } = useParams()
   const [content, setContent] = useState("")
@@ -8,7 +10,7 @@ export default function ReadableViewer() {
 
   useEffect(() => {
     const decoded = decodeURIComponent(filename || "")
-    fetch(`/DialogText/assets/Readable/${lang}/${decoded}`)
+    fetch(`${baseUrl}assets/Readable/${lang}/${decoded}`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Readable not found")

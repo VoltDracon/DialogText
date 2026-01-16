@@ -6,6 +6,8 @@ import HighlightSnippet from "./HighlightSnippet";
 import MainQuest from "./MainQuest";
 import ReadableCard from "./ReadableCard";
 
+const baseUrl = import.meta.env.BASE_URL;
+
 export default function NormalSearchResults({
   searchedWordList,
   filteredWord,
@@ -50,7 +52,7 @@ export default function NormalSearchResults({
                             {item.type === "book" ? (
                               <>
                                 {(() => {
-                                  const href = `/DialogText/readable/EN/${encodeURIComponent(item.filename)}`
+                                  const href = `${baseUrl}#/readable/EN/${encodeURIComponent(item.filename)}`
                                   return (
                                     <a
                                       href={href}
@@ -79,7 +81,7 @@ export default function NormalSearchResults({
                                   onClick={(e) => {
                                     e.preventDefault()
                                     window.open(
-                                      `/DialogText/quest/${item.questId}`,
+                                      `${baseUrl}#/quest/${item.questId}`,
                                       "_blank",
                                       "noopener,noreferrer"
                                     )

@@ -1,6 +1,8 @@
 /* eslint-disable react/prop-types */
+const baseUrl = import.meta.env.BASE_URL;
+
 export default function ReadableCard({ readable }) {
-  const href = `/DialogText/readable/EN/${encodeURIComponent(readable.filename)}`
+  const href = `${baseUrl}#/readable/EN/${encodeURIComponent(readable.filename)}`
 
   return (
     <div className='bg-gray-300 border-4 border-black rounded-3xl min-h-[200px] w-[calc(25%-10px)] m-[5px]'>

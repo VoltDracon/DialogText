@@ -3,6 +3,8 @@ import { AutoSizer, List, CellMeasurer } from "react-virtualized";
 import HighlightTextLanguage from "./HighlightTextLanguage";
 import HighlightSnippet from "./HighlightSnippet";
 
+const baseUrl = import.meta.env.BASE_URL;
+
 export default function LanguageSearchResults({
   searchedWordList,
   filteredWord,
@@ -47,7 +49,7 @@ export default function LanguageSearchResults({
                               {item.type === "book" ? (
                                 <>
                                   {(() => {
-                                    const href = `/DialogText/readable/${selectedLANG}/${encodeURIComponent(item.langFilename)}`
+                                    const href = `${baseUrl}#/readable/${selectedLANG}/${encodeURIComponent(item.langFilename)}`
                                     return (
                                       <a
                                         href={href}

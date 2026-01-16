@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { AutoSizer, List, CellMeasurer } from "react-virtualized";
 import HighlightTextLanguage from "./HighlightTextLanguage";
+import HighlightSnippet from "./HighlightSnippet";
 
 export default function LanguageSearchResults({
   searchedWordList,
@@ -28,30 +29,51 @@ export default function LanguageSearchResults({
                 deferredMeasurementCache={cache}
                 rowHeight={cache.rowHeight}
                 rowCount={searchedWordList.length}
-                rowRenderer={({ index, key, style, parent }) => (
-                  <CellMeasurer
-                    key={key}
-                    cache={cache}
-                    columnIndex={0}
-                    parent={parent}
-                    rowIndex={index}>
-                    {searchedWordList[0] === null ?
-                      <p className='m-1' style={style}>No Matched Words Found!</p>
-                      :
-                      <div style={style}>
-                        <div className="border-2 border-black m-1 p-4 rounded-xl bg-gray-300">
-                          <div className="relative">
-                            <HighlightTextLanguage
-                              id={(searchedWordList[index]).id}
-                              translatedtext={(searchedWordList[index]).transtext}
-                              text={(searchedWordList[index]).text}
-                              highlightTxt={filteredWord} />
+                rowRenderer={({ index, key, style, parent }) => {
+                  const item = searchedWordList[index]
+                  return (
+                    <CellMeasurer
+                      key={key}
+                      cache={cache}
+                      columnIndex={0}
+                      parent={parent}
+                      rowIndex={index}>
+                      {searchedWordList[0] === null ?
+                        <p className='m-1' style={style}>No Matched Words Found!</p>
+                        :
+                        <div style={style}>
+                          <div className="border-2 border-black m-1 p-4 rounded-xl bg-gray-300">
+                            <div className="relative">
+                              {item.type === "book" ? (
+                                <>
+                                  <a
+                                    href={`/DialogText/assets/Readable/${selectedLANG}/${item.langFilename}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    <p className="ml-5 mb-2 font-bold">{item.title}</p>
+                                  </a>
+                                  <p className="ml-5 mb-2 text-sm">{item.langFilename}</p>
+                                  <HighlightSnippet
+                                    text={item.snippet}
+                                    highlightTxt={filteredWord}
+                                  />
+                                </>
+                              ) : (
+                                <HighlightTextLanguage
+                                  id={item.id}
+                                  translatedtext={item.transtext}
+                                  text={item.text}
+                                  highlightTxt={filteredWord}
+                                />
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    }
-                  </CellMeasurer>
-                )}
+                      }
+                    </CellMeasurer>
+                  )
+                }}
               />
             )}
           </AutoSizer>

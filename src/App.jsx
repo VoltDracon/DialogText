@@ -52,7 +52,7 @@ export default function App() {
 
   const [textMap, setTextMap] = useState(null)
   const [LANGtextMap, setLANGTextMap] = useState(null)
-  const [readablesEN, setReadablesEN] = useState([])
+  const [readablesIndex, setReadablesIndex] = useState([])
 
   const cache = new CellMeasurerCache({
     defaultHeight: 30,
@@ -73,14 +73,14 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    fetch(`/DialogText/assets/Readable/EN/readables.json`)
+    fetch(`/DialogText/assets/Readable/EN/readables_index.json`)
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Failed to load readables list")
+          throw new Error("Failed to load readables index")
         }
         return res.json()
       })
-      .then(setReadablesEN)
+      .then(setReadablesIndex)
       .catch(console.error)
   }, [])
 
@@ -98,6 +98,27 @@ export default function App() {
       listRef.current.scrollToPosition(0);
     }
   }, [filteredWord]);
+
+  function getReadableLangFilename(filename, lang) {
+    if (lang === "EN") return filename
+    if (lang === "CHS") return filename.replace(/_EN\.txt$/i, ".txt")
+    if (/_EN\.txt$/i.test(filename)) {
+      return filename.replace(/_EN\.txt$/i, `_${lang}.txt`)
+    }
+    return filename.replace(/\.txt$/i, `_${lang}.txt`)
+  }
+
+  function getReadableSnippet(text, word) {
+    const normalized = text.replace(/\s+/g, " ").trim()
+    const index = normalized.indexOf(word)
+    if (index === -1) return normalized.slice(0, 160)
+    const radius = 80
+    const start = Math.max(0, index - radius)
+    const end = Math.min(normalized.length, index + word.length + radius)
+    const prefix = start > 0 ? "..." : ""
+    const suffix = end < normalized.length ? "..." : ""
+    return `${prefix}${normalized.slice(start, end)}${suffix}`
+  }
 
   function searchSelectedWord(word, languagesearchtrue) {
 
@@ -128,10 +149,23 @@ export default function App() {
         if (checkWordExistLanguage(word, item.text)) {
 
           matchingWords.push({
+            type: "textmap",
             id: item.id,
             transtext: (LANGtextMap)[item.id] || "Language ID not found",
             text: removeColorTags(item.text)
           });
+        }
+      }
+
+      for (const readable of readablesIndex) {
+        if (checkWordExistLanguage(word, readable.text)) {
+          matchingWords.push({
+            type: "book",
+            title: readable.title,
+            filename: readable.filename,
+            langFilename: getReadableLangFilename(readable.filename, selectedLANG),
+            snippet: getReadableSnippet(readable.text, word)
+          })
         }
       }
     }
@@ -162,6 +196,17 @@ export default function App() {
               }
             }
           }
+        }
+      }
+
+      for (const readable of readablesIndex) {
+        if (checkWordExistLanguage(word, readable.text)) {
+          matchingWords.push({
+            type: "book",
+            title: readable.title,
+            filename: readable.filename,
+            snippet: getReadableSnippet(readable.text, word)
+          })
         }
       }
     }
@@ -229,7 +274,7 @@ export default function App() {
           onResize={({ width, height }) => setCurrentDim({ width: width, height: height })}
           quests={EnQuestjson}
           normalMode={normalMode}
-          readables={readablesEN}
+          readables={readablesIndex}
         />
       }
     </div>

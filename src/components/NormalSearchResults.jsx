@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { AutoSizer, List, CellMeasurer } from "react-virtualized";
 import HighlightText from "./HighlightText";
+import HighlightSnippet from "./HighlightSnippet";
 import MainQuest from "./MainQuest";
 import ReadableCard from "./ReadableCard";
 
@@ -32,32 +33,57 @@ export default function NormalSearchResults({
                 deferredMeasurementCache={cache}
                 rowHeight={cache.rowHeight}
                 rowCount={searchedWordList.length}
-                rowRenderer={({ index, key, style, parent }) => (
-                  <CellMeasurer
-                    key={key}
-                    cache={cache}
-                    columnIndex={0}
-                    parent={parent}
-                    rowIndex={index}>
-                    {searchedWordList[0] === null ?
-                      <p className='m-1' style={style}>No Matched Words Found!</p>
-                      :
-                      <div style={style}>
-                        <div className="border-2 border-black m-1 p-4 rounded-xl bg-gray-300">
-                          <Link to={`/quest/${(searchedWordList[index]).questId}`}><p className='font-bold'>{(searchedWordList[index]).quest}</p></Link>
-                          <div className="relative">
-                            <HighlightText speaker={(searchedWordList[index]).speaker}
-                              text={(searchedWordList[index]).text}
-                              highlightTxt={filteredWord} />
-                            {/* <ColorText speaker = {(searchedWordList[index]).speaker} 
-                                text = {(searchedWordList[index]).text} 
-                                color = {(searchedWordList[index]).color}/> */}
+                rowRenderer={({ index, key, style, parent }) => {
+                  const item = searchedWordList[index]
+                  return (
+                    <CellMeasurer
+                      key={key}
+                      cache={cache}
+                      columnIndex={0}
+                      parent={parent}
+                      rowIndex={index}>
+                      {searchedWordList[0] === null ?
+                        <p className='m-1' style={style}>No Matched Words Found!</p>
+                        :
+                        <div style={style}>
+                          <div className="border-2 border-black m-1 p-4 rounded-xl bg-gray-300">
+                            {item.type === "book" ? (
+                              <>
+                                <a
+                                  href={`/DialogText/assets/Readable/EN/${item.filename}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  <p className='font-bold'>{item.title}</p>
+                                </a>
+                                <HighlightSnippet
+                                  text={item.snippet}
+                                  highlightTxt={filteredWord}
+                                />
+                              </>
+                            ) : (
+                              <>
+                                <Link to={`/quest/${item.questId}`}>
+                                  <p className='font-bold'>{item.quest}</p>
+                                </Link>
+                                <div className="relative">
+                                  <HighlightText
+                                    speaker={item.speaker}
+                                    text={item.text}
+                                    highlightTxt={filteredWord}
+                                  />
+                                  {/* <ColorText speaker = {item.speaker} 
+                                      text = {item.text} 
+                                      color = {item.color}/> */}
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
-                      </div>
-                    }
-                  </CellMeasurer>
-                )}
+                      }
+                    </CellMeasurer>
+                  )
+                }}
               />
             )}
           </AutoSizer>

@@ -5,6 +5,8 @@ export default function ReadableCard({ readable }) {
       <a
         className='block h-full'
         href={`/DialogText/assets/Readable/EN/${readable.filename}`}
+        target="_blank"
+        rel="noreferrer"
       >
         <p className='mt-2 font-bold text-center'>{readable.title}</p>
       </a>

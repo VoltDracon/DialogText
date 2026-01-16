@@ -10,5 +10,5 @@ export default defineConfig({
       plugins: [fixReactVirtualized],
     },
   },
-  base: '/DialogText'
+  base: '/DialogText/'
 })

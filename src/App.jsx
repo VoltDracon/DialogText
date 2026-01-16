@@ -45,12 +45,14 @@ export default function App() {
   const [searchedWordList, setSearchedWordList] = useState([])
   const [filteredWord, setWord] = useState('')
   const [languagesearch, setlanguagesearch] = useState(false)
+  const [normalMode, setNormalMode] = useState("quest")
   const [selectedLANG, setselectedLANG] = useState("CHS")
   const [curDim, setCurrentDim] = useState({ height: window.innerHeight, width: window.innerWidth })
   const listRef = useRef(null)
 
   const [textMap, setTextMap] = useState(null)
   const [LANGtextMap, setLANGTextMap] = useState(null)
+  const [readablesEN, setReadablesEN] = useState([])
 
   const cache = new CellMeasurerCache({
     defaultHeight: 30,
@@ -67,6 +69,18 @@ export default function App() {
         setTextMap(EnSorted)
       }
       )
+      .catch(console.error)
+  }, [])
+
+  useEffect(() => {
+    fetch(`/DialogText/assets/Readable/EN/readables.json`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to load readables list")
+        }
+        return res.json()
+      })
+      .then(setReadablesEN)
       .catch(console.error)
   }, [])
 
@@ -172,6 +186,12 @@ export default function App() {
     setSearchedWordList([])
   }
 
+  function handleToggleNormalMode() {
+    setNormalMode((prev) => (prev === "book" ? "quest" : "book"))
+    setWord("")
+    setSearchedWordList([])
+  }
+
   if (!textMap || !LANGtextMap) return <div>Loading EN and {selectedLANG}…</div>
 
   return (
@@ -181,7 +201,9 @@ export default function App() {
         selectedLANG={selectedLANG}
         filteredWord={filteredWord}
         searchedWordList={searchedWordList}
+        normalMode={normalMode}
         onToggleMode={handleToggleMode}
+        onToggleNormalMode={handleToggleNormalMode}
         onInputChange={handleInputChange}
       />
       {languagesearch ?
@@ -206,6 +228,8 @@ export default function App() {
           curDim={curDim}
           onResize={({ width, height }) => setCurrentDim({ width: width, height: height })}
           quests={EnQuestjson}
+          normalMode={normalMode}
+          readables={readablesEN}
         />
       }
     </div>

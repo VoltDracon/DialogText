@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { AutoSizer, List, CellMeasurer } from "react-virtualized";
 import HighlightText from "./HighlightText";
 import MainQuest from "./MainQuest";
+import ReadableCard from "./ReadableCard";
 
 export default function NormalSearchResults({
   searchedWordList,
@@ -12,6 +13,8 @@ export default function NormalSearchResults({
   curDim,
   onResize,
   quests,
+  normalMode,
+  readables,
 }) {
   return (
     <>
@@ -63,9 +66,14 @@ export default function NormalSearchResults({
         //this is the quest blocks you can click
         <div className='flex flex-wrap'>
           {
-            quests.map((mainquest, index) => (
-              <MainQuest key={`${mainquest.questId}-${index}`} mainquest={mainquest} />
-            ))
+            normalMode === "book" ?
+              readables.map((readable) => (
+                <ReadableCard key={readable.id} readable={readable} />
+              ))
+              :
+              quests.map((mainquest, index) => (
+                <MainQuest key={`${mainquest.questId}-${index}`} mainquest={mainquest} />
+              ))
           }
         </div>
       }
